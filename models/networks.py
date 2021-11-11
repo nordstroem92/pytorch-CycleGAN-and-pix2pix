@@ -247,7 +247,7 @@ class GANLoss(nn.Module):
         elif gan_mode == 'vanilla':
             self.loss = nn.BCEWithLogitsLoss()
         elif gan_mode == 'tvloss':
-            self.loss = tv_loss()
+            self.loss = tv_loss(torch.tensor(target_fake_label))
         elif gan_mode in ['wgangp']:
             self.loss = None
         else:
