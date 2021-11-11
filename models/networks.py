@@ -247,7 +247,7 @@ class GANLoss(nn.Module):
         elif gan_mode == 'vanilla':
             self.loss = nn.BCEWithLogitsLoss()
         elif gan_mode == 'tvloss':
-            self.loss = nn.tv_loss()
+            self.loss = tv_loss()
         elif gan_mode in ['wgangp']:
             self.loss = None
         else:
