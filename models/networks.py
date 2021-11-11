@@ -202,21 +202,6 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
     return init_net(net, init_type, init_gain, gpu_ids)
 
-def tv_loss(img):
-    """
-    Compute total variation loss.
-    Inputs:
-    - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
-    - tv_weight: Scalar giving the weight w_t to use for the TV loss.
-    Returns:
-    - loss: PyTorch Variable holding a scalar giving the total variation loss
-      for img weighted by tv_weight.
-    """
-    tv_weight = float(5e-2)
-    w_variance = torch.sum(torch.pow(img[:,:,:,:-1] - img[:,:,:,1:], 2))
-    h_variance = torch.sum(torch.pow(img[:,:,:-1,:] - img[:,:,1:,:], 2))
-    loss = tv_weight * (h_variance + w_variance)
-    return loss
 ##############################################################################
 # Classes
 ##############################################################################
@@ -246,8 +231,6 @@ class GANLoss(nn.Module):
             self.loss = nn.MSELoss()
         elif gan_mode == 'vanilla':
             self.loss = nn.BCEWithLogitsLoss()
-        elif gan_mode == 'tvloss':
-            self.loss = tv_loss(torch.tensor(target_fake_label))
         elif gan_mode in ['wgangp']:
             self.loss = None
         else:

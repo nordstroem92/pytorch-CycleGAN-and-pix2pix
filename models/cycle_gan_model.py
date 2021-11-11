@@ -148,6 +148,22 @@ class CycleGANModel(BaseModel):
         fake_A = self.fake_A_pool.query(self.fake_A)
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
+    def tv_loss(img):
+        """
+        Compute total variation loss.
+        Inputs:
+        - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
+        - tv_weight: Scalar giving the weight w_t to use for the TV loss.
+        Returns:
+        - loss: PyTorch Variable holding a scalar giving the total variation loss
+        for img weighted by tv_weight.
+        """
+        tv_weight = float(0.05)
+        w_variance = torch.sum(torch.pow(img[:,:,:,:-1] - img[:,:,:,1:], 2))
+        h_variance = torch.sum(torch.pow(img[:,:,:-1,:] - img[:,:,1:,:], 2))
+        loss = tv_weight * (h_variance + w_variance)
+        return loss
+
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_idt = self.opt.lambda_identity
@@ -174,7 +190,9 @@ class CycleGANModel(BaseModel):
         # Backward cycle loss || G_A(G_B(B)) - B||
         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         # combined loss and calculate gradients
-        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B
+        self.loss_TV = self.tv_loss(self.fake_B)
+
+        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_TV
         self.loss_G.backward()
 
     def optimize_parameters(self):
