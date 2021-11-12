@@ -4,6 +4,15 @@ from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 
+import argparse
+import torch.nn as nn
+from torch.autograd import Variable
+import torchvision
+import torchvision.transforms as T
+from torchvision.utils import save_image
+import PIL
+import numpy as np
+
 
 class CycleGANModel(BaseModel):
     """
@@ -148,7 +157,17 @@ class CycleGANModel(BaseModel):
         fake_A = self.fake_A_pool.query(self.fake_A)
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
-    def tv_loss(img, dummy):
+    def preprocess(img, size=256):
+    transform = T.Compose([
+        T.Resize(size),
+        T.ToTensor(),
+        T.Normalize(mean=SQUEEZENET_MEAN.tolist(),
+                    std=SQUEEZENET_STD.tolist()),
+        T.Lambda(lambda x: x[None]),
+    ])
+    return transform(img)
+
+    def tv_loss(img, tv_weight):
         """
         Compute total variation loss.
         Inputs:
@@ -158,7 +177,7 @@ class CycleGANModel(BaseModel):
         - loss: PyTorch Variable holding a scalar giving the total variation loss
         for img weighted by tv_weight.
         """
-        print(dummy)
+
         tv_weight = float(0.05)
         w_variance = torch.sum(torch.pow(img[:,:,:,:-1] - img[:,:,:,1:], 2))
         h_variance = torch.sum(torch.pow(img[:,:,:-1,:] - img[:,:,1:,:], 2))
@@ -192,7 +211,16 @@ class CycleGANModel(BaseModel):
         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         # combined loss and calculate gradients
         print("shape: ", self.fake_B.shape)
-        self.loss_TV = self.tv_loss(self.netD_A(self.fake_B))
+
+        content_img = preprocess(PIL.Image.open(self.fake_B.shape), size=256)
+        # Initialize output image to content image
+        img = content_img.clone().type(dtype)
+
+        # We do want the gradient computed on our image!
+        img_var = Variable(img, requires_grad=True)
+        
+        tv_weight = float(0.05)
+        self.loss_TV = selftv_loss(img_var, tv_weight)
 
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_TV
         self.loss_G.backward()
