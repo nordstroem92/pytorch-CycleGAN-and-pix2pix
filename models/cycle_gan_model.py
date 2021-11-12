@@ -148,7 +148,8 @@ class CycleGANModel(BaseModel):
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
 
-    def tv_loss(image):
+    def tv_loss(self):
+        fake_B = self.fake_B_pool.query(self.fake_B)
         x = image[:,:,1:,:] - image[:,:,:-1,:]
         y = image[:,:,:,1:] - image[:,:,:,:-1]
         loss = torch.sum(torch.abs(x)) + torch.sum(torch.abs(y))
@@ -181,8 +182,7 @@ class CycleGANModel(BaseModel):
         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         # combined loss and calculate gradients
 
-
-        self.loss_TV = self.tv_loss(self.fake_B))
+        self.loss_TV = self.tv_loss(self)
 
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_TV
         self.loss_G.backward()
