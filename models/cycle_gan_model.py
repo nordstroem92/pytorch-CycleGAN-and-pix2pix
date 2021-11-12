@@ -4,16 +4,6 @@ from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 
-import argparse
-import torch.nn as nn
-from torch.autograd import Variable
-import torchvision
-import torchvision.transforms as T
-from torchvision.utils import save_image
-import PIL
-import numpy as np
-
-
 class CycleGANModel(BaseModel):
     """
     This class implements the CycleGAN model, for learning image-to-image translation without paired data.
@@ -158,21 +148,10 @@ class CycleGANModel(BaseModel):
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
 
-    def tv_loss(img, tv_weight):
-        """
-        Compute total variation loss.
-        Inputs:
-        - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
-        - tv_weight: Scalar giving the weight w_t to use for the TV loss.
-        Returns:
-        - loss: PyTorch Variable holding a scalar giving the total variation loss
-        for img weighted by tv_weight.
-        """
-
-        tv_weight = float(0.05)
-        w_variance = torch.sum(torch.pow(img[:,:,:,:-1] - img[:,:,:,1:], 2))
-        h_variance = torch.sum(torch.pow(img[:,:,:-1,:] - img[:,:,1:,:], 2))
-        loss = tv_weight * (h_variance + w_variance)
+    def tv_loss(image):
+        x = image[:,:,1:,:] - image[:,:,:-1,:]
+        y = image[:,:,:,1:] - image[:,:,:,:-1]
+        loss = torch.sum(torch.abs(x)) + torch.sum(torch.abs(y))
         return loss
 
     def backward_G(self):
@@ -203,10 +182,7 @@ class CycleGANModel(BaseModel):
         # combined loss and calculate gradients
 
 
-        # We do want the gradient computed on our image!
-        img_var = Variable(img, requires_grad=True)
-        
-        self.loss_TV = self.tv_loss(img_var, tv_weight)
+        self.loss_TV = self.tv_loss(self.fake_B))
 
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_TV
         self.loss_G.backward()
