@@ -148,7 +148,7 @@ class CycleGANModel(BaseModel):
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
 
-    def tv_loss(self, second):
+    def tv_loss(self, lol):
         image = self.fake_B_pool.query(self.fake_B)
         x = image[:,:,1:,:] - image[:,:,:-1,:]
         y = image[:,:,:,1:] - image[:,:,:,:-1]
