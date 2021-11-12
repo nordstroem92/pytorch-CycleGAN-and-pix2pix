@@ -158,14 +158,14 @@ class CycleGANModel(BaseModel):
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
     def preprocess(img, size=256):
-    transform = T.Compose([
-        T.Resize(size),
-        T.ToTensor(),
-        T.Normalize(mean=SQUEEZENET_MEAN.tolist(),
-                    std=SQUEEZENET_STD.tolist()),
-        T.Lambda(lambda x: x[None]),
-    ])
-    return transform(img)
+        transform = T.Compose([
+            T.Resize(size),
+            T.ToTensor(),
+            T.Normalize(mean=SQUEEZENET_MEAN.tolist(),
+                        std=SQUEEZENET_STD.tolist()),
+            T.Lambda(lambda x: x[None]),
+        ])
+        return transform(img)
 
     def tv_loss(img, tv_weight):
         """
@@ -212,7 +212,7 @@ class CycleGANModel(BaseModel):
         # combined loss and calculate gradients
         print("shape: ", self.fake_B.shape)
 
-        content_img = preprocess(PIL.Image.open(self.fake_B.shape), size=256)
+        content_img = self.preprocess(PIL.Image.open(self.fake_B.shape), size=256)
         # Initialize output image to content image
         img = content_img.clone().type(dtype)
 
