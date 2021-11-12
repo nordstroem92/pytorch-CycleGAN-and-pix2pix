@@ -212,7 +212,7 @@ class CycleGANModel(BaseModel):
         # combined loss and calculate gradients
         print("shape: ", self.fake_B.shape)
 
-        content_img = self.preprocess(PIL.Image.open(self.fake_B.shape), size=256)
+        content_img = self.preprocess(PIL.Image.open(self.fake_B), size=256)
         # Initialize output image to content image
         img = content_img.clone().type(dtype)
 
@@ -220,7 +220,7 @@ class CycleGANModel(BaseModel):
         img_var = Variable(img, requires_grad=True)
         
         tv_weight = float(0.05)
-        self.loss_TV = selftv_loss(img_var, tv_weight)
+        self.loss_TV = self.tv_loss(img_var, tv_weight)
 
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_TV
         self.loss_G.backward()
