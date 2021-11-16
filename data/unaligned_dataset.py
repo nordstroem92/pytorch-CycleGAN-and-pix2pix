@@ -60,7 +60,7 @@ class UnalignedDataset(BaseDataset):
             index_B = random.randint(0, self.B_size - 1)
             index_C = random.randint(0, self.C_size - 1)
         B_path = self.B_paths[index_B]
-        C_path = self.B_paths[index_C]
+        C_path = self.C_paths[index_C]
         A_img = Image.open(A_path).convert('RGB')
         B_img = Image.open(B_path).convert('RGB')
         C_img = Image.open(C_path).convert('RGB')
