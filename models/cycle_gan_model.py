@@ -140,8 +140,10 @@ class CycleGANModel(BaseModel):
         pred_smooth = netD(edges)
         loss_D_smooth = self.criterionGAN(pred_smooth, False)
 
+        print(pred_smooth)
+
         # Combined loss and calculate gradients
-        loss_D = (loss_D_real + loss_D_fake + loss_D_smooth) * 0.5
+        loss_D = loss_D_real + loss_D_fake + loss_D_smooth
         loss_D.backward()
         return loss_D
 
@@ -166,6 +168,7 @@ class CycleGANModel(BaseModel):
         for img weighted by tv_weight.
         """
         image = self.fake_B_pool.query(self.fake_B)
+        image.show()
         tv_weight = float(0.05)
         w_variance = torch.sum(torch.pow(image[:,:,:,:-1] - image[:,:,:,1:], 2))
         h_variance = torch.sum(torch.pow(image[:,:,:-1,:] - image[:,:,1:,:], 2))
