@@ -10,6 +10,8 @@ This project was based upon the official PyTorch implementation of CycleGAN. Tot
 ### Run with TV loss, Guassian Blur and Data Augmentation
 ![TVlossPlusGaussianBlur](https://user-images.githubusercontent.com/15377936/147256118-018759be-68b1-4d77-bea3-12d425dbbf9a.png)
 
-
-![cartoonGAN](https://user-images.githubusercontent.com/15377936/147256136-abe29940-84c4-4064-bfc9-759eee8c680e.png)
+### Run with Edge Promoting loss, Guassian Blur and Data Augmentation
 ![EdgePromotingLoss](https://user-images.githubusercontent.com/15377936/147256145-b1621804-b03c-4cdd-b4dc-1c4d424f7f20.png)
+
+### Run with TV Loss, Edge Promoting loss, Gaussian Blur and Data Augmentation 
+![cartoonGAN](https://user-images.githubusercontent.com/15377936/147256136-abe29940-84c4-4064-bfc9-759eee8c680e.png)
